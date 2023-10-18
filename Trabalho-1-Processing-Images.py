@@ -172,7 +172,7 @@ class Aplication():
         imgGray = (imgGray/255.0)
         img_gam = np.array(255*(imgGray) ** 5, dtype='uint8')
         if pot != "":
-            img_gam = np.array(255*(imgGray) ** int(pot), dtype='uint8')
+            img_gam = np.array(255*(imgGray) ** float(pot), dtype='uint8')
         self.PILResultImage = img_gam.copy()
         self.resultados.append(("Correção de Gama",self.PILResultImage))
         self.entryInfo.delete(0, "end")

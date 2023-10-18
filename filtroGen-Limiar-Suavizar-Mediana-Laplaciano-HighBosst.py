@@ -10,13 +10,6 @@ img_gray = cv.cvtColor(img,cv.COLOR_BGR2GRAY)
 limiar = 200
 img_limiar = np.zeros((int(img_gray.shape[0]), int(img_gray.shape[1])), dtype=np.uint8)
 
-for i in range(0,img_gray.shape[0]):
-    for j in range(0,img_gray.shape[1]):
-        val = img_gray[i,j]
-        if val>=limiar:
-            img_limiar[i,j] = 255
-
-#Convolucao
 def convolucao(img,x,y,tam,M):
     M = M[::-1]
     ind = 0
@@ -31,6 +24,16 @@ def convolucao(img,x,y,tam,M):
                 soma = soma + 0*M[ind]
                 ind += 1
     return soma
+
+
+for i in range(0,img_gray.shape[0]):
+    for j in range(0,img_gray.shape[1]):
+        val = img_gray[i,j]
+        if val>=limiar:
+            img_limiar[i,j] = 255
+
+#Convolucao
+
 
 #Filto Genérico por convolucao
 tamanho = 5
@@ -87,8 +90,34 @@ for x in range(0,img_gray.shape[1]):
 
 img_pond = img_pond/np.max(img_pond)
 
-#Fitro da mediana
 
+#Fitro da mediana
+img = cv.imread('Fig0335(a)(ckt_board_saltpep_prob_pt05).tif')
+img_gray_med = cv.cvtColor(img,cv.COLOR_BGR2GRAY)
+
+img_gray_med = img_gray_med/255.0
+
+def mediana(img,x,y,tam):
+    med = []
+    for i in range (y - tam//2,y + tam//2 +1):
+        for j in range (x - tam//2, x + tam//2 +1):
+            if (0 <= j < img.shape[1]) and (0<= i < img.shape[0]):
+                L = img[i,j]
+                med.append(L)
+            else:
+                continue
+    median = np.array(med)
+    intensidade = np.median(median)
+    return intensidade
+
+tamanho = 5
+
+img_mediana = np.zeros((int(img_gray_med.shape[0]),int(img_gray_med.shape[1])))
+for x in range(0,img_gray_med.shape[1]):
+    for y in range(0,img_gray_med.shape[0]):
+        #Percorrer toda a imagem
+        intensidade = mediana(img_gray_med,x,y,tamanho)
+        img_mediana[y,x] = intensidade
 
 
 
@@ -108,21 +137,38 @@ for x in range(0,img_gray.shape[1]):
         intensidade = convolucao(img_gray,x,y,tamanho,listaMatriz)
         img_lapla[y,x] = intensidade
 
-im_lap = cv.Laplacian(img_gray, -1, (3,3))
-print(np.max(im_lap))
-print(np.max(img_gray))
-print(np.max(img_lapla))
-img_nitidezLapla = img_gray + (0.1*im_lap)
+img_nitidezLapla = img_gray + (0.9*img_lapla)
+
+#Filtro High Boost
+tamanho = 3
+matriz = np.array([[1, 2, 1],
+                  [2, 4, 2],
+                  [1, 2, 1]])
+matriz = matriz/16.0
+listaMatriz = [valor for linha in matriz for valor in linha]
+
+img_gauss = np.zeros((int(img_gray.shape[0]), int(img_gray.shape[1])))
+for x in range(0,img_gray.shape[1]):
+    for y in range(0,img_gray.shape[0]):
+        #Percorrer toda a imagem
+        intensidade = convolucao(img_gray,x,y,tamanho,listaMatriz)
+        img_gauss[y,x] = intensidade
+
+img_bordas_highBust = img_gray - img_gauss
+img_highBust = img_gray + (0.9*img_bordas_highBust)
 
 
 
 cv.imshow('Imagem Gamma', img_limiar)
-#cv.imshow('Filtro Generico',  img_generico)
-#cv.imshow('Filtro Simples',  img_simples)
-#cv.imshow('Filtro Ponderada',  img_pond)
+cv.imshow('Filtro Generico',  img_generico)
+cv.imshow('Filtro Simples',  img_simples)
+cv.imshow('Filtro Ponderada',  img_pond)
 cv.imshow('Filtro Laplaciano', img_lapla)
 cv.imshow('Filtro Realçe Laplaciano', img_nitidezLapla)
-cv.imshow('Teste', im_lap)
 cv.imshow('Original', img_gray)
+cv.imshow('Filtro da Mediana', img_mediana)
+cv.imshow('Filtro Gauss',img_gauss)
+cv.imshow('BORDA High Bust', img_bordas_highBust)
+cv.imshow('High Bust', img_highBust)
 cv.waitKey(0)
 cv.destroyAllWindows()
