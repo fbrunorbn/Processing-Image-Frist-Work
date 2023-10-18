@@ -21,7 +21,6 @@ listaMatrizY = [valor for linha in sobelY for valor in linha]
 
 
 def convolucao(img,x,y,tam,M):
-    #M = M[::-1]
     ind = 0
     soma = 0
     for i in range (y - tam//2,y + tam//2 +1):

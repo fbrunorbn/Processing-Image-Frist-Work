@@ -30,12 +30,12 @@ def pixelVal(pix, r1, s1, r2, s2):
 		return ((255 - s2)/(255 - r2)) * (pix - r2) + s2 
 
 imgGray = imgGray*255.0
-img_gray_stret = np.zeros((int(imgGray.shape[0]), int(imgGray.shape[1])))
+img_gray_stret = np.zeros((int(imgGray.shape[0]), int(imgGray.shape[1])), dtype=np.uint8)
 
 # Define parameters. 
-r1 = 20
+r1 = 70
 s1 = 0
-r2 = 200
+r2 = 220
 s2 = 255
 
 for x in range(0,imgGray.shape[1]):
@@ -45,11 +45,6 @@ for x in range(0,imgGray.shape[1]):
 print(img_gray_stret.max())
 print(img_gray_stret.min())
 
-pixelVal_vec = np.vectorize(pixelVal) 
-  
-# Apply contrast stretching. 
-contrast_stretched = pixelVal_vec(img, r1, s1, r2, s2)
-
 
 
 cv.imshow('Imagem original', img)
@@ -57,6 +52,5 @@ cv.imshow('Imagem Negativa', imgNeg)
 cv.imshow('Imagem Log', img_log)
 cv.imshow('Imagem Gamma', img_gam)
 cv.imshow('Linear por partes - Contraste Stretching',img_gray_stret)
-cv.imshow('2',contrast_stretched)
 cv.waitKey(0)
 cv.destroyAllWindows()
